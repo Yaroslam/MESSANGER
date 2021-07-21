@@ -1,50 +1,72 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QRegion
+from PyQt5 import Qt, QtCore, QtWidgets
+from PyQt5.QtWidgets import *
+import sys
+from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtGui import QDrag
+from PyQt5.QtCore import QMimeData, pyqtSignal
 
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(500, 500)
-        self.mainFrame = QtWidgets.QFrame(Form)
-        self.mainFrame.setGeometry(QtCore.QRect(10, 10, 481, 481))
-        self.mainFrame.setFrameShape(QtWidgets.QFrame.WinPanel)
-        self.mainFrame.setObjectName("mainFrame")
-        QtCore.QMetaObject.connectSlotsByName(Form)
+class Button(Qt.QPushButton):
+    left_click = pyqtSignal()
+    right_click = pyqtSignal()
 
-        Form.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
-        Form.setStyleSheet("QFrame#mainFrame {\n"
-                           "    border: 5px solid grey;\n"
-                           "    border-radius: 240px;\n"
-                           "    background-color: rgba(255, 0, 0, 50);\n"
-                           "}\n"
-                           "QWidget#Form {\n"
-                           "    background-color: rgba(255, 255, 255, 0);\n"
-                           "    border: 5px solid grey;\n"
-                           "    border-radius: 250px;\n"
-                           "}")
-        self.mainFrame.mouseDoubleClickEvent = lambda event: QtWidgets.qApp.quit()
-        Form.setWindowOpacity(0.4)
-        self.mainFrame.setWindowOpacity(1)
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+
+    def mouseMoveEvent(self, e):
+        if e.buttons() != Qt.Qt.RightButton:
+            return
+        mimeData = QMimeData()
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setHotSpot(e.pos() - self.rect().topLeft())
+        dropAction = drag.exec_(Qt.Qt.MoveAction)
+
+    def mousePressEvent(self, event):
+        buttom = event.button()
+        if buttom == Qt.Qt.LeftButton:
+            self.left_click.emit()
+            print('шмяк по левой')
+        if buttom == Qt.Qt.RightButton:
+            self.right_click.emit()
+            print('шмяк по правой')
 
 
-class MainWindow(QtWidgets.QWidget, Ui_Form):
+class prog(QWidget):
     def __init__(self):
         super().__init__()
+        self.initUI()
 
-        self.setupUi(self)
+    def initUI(self):
+        self.setAcceptDrops(True)
+        self.button = QPushButton('Создать объект "Кнопка"', self)
+        self.button.move(100, 65)
+        self.button.clicked.connect(self.generate)
+        self.spin = []
 
-        self.region_and_mask()
+    def generate(self):
+        button_d = Button('Button', self)
+        button_d.move(150, 65)
+        button_d.show()
+        # button_d.left_click.connect(self.generate)
+        button_d.right_click.connect(self.ident_but)
+        self.spin.append(button_d)
 
-    def region_and_mask(self):
-        my_region = QRegion(self.rect(), QRegion.Ellipse)
-        self.setMask(my_region)
+    def ident_but(self):
+        self.mov_but = self.sender()
+
+    def dragEnterEvent(self, e):
+        e.accept()
+
+    def dropEvent(self, e):
+        position = e.pos()
+        self.mov_but.move(position)
+        e.setDropAction(Qt.Qt.MoveAction)
+        e.accept()
 
 
 if __name__ == '__main__':
-    import sys
-
-    app = QtWidgets.QApplication(sys.argv)
-    main = MainWindow()
-    main.show()
-    sys.exit(app.exec_())
+    app = QApplication(sys.argv)
+    ex = prog()
+    ex.show()
+    app.exec_()

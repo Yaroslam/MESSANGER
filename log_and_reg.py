@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QMessageBox, QProgressBar, QFrame, QFileDialog,\
     QLineEdit, QLabel
 from PyQt5.QtGui import QPixmap, QRegion
 from PyQt5.QtCore import QRect
+from main import Massenger
 import sys
 from CONST import *
 
@@ -82,12 +83,12 @@ class Get_data(QMainWindow):
         self.move(qr.topLeft())
 
     def next_window(self):
-        if REG:
+        if not REG:
             self.close()
             self.next = Get_image()
         else:
-            pass
-            # self.next = Dailogs()
+            self.close()
+            self.next = Massenger()
 
 
 class Get_image(QMainWindow):
