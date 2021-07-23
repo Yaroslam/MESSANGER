@@ -1,72 +1,37 @@
-from PyQt5 import Qt, QtCore, QtWidgets
-from PyQt5.QtWidgets import *
-import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication
-from PyQt5.QtGui import QDrag
-from PyQt5.QtCore import QMimeData, pyqtSignal
+import sqlalchemy as sqa
 
-
-class Button(Qt.QPushButton):
-    left_click = pyqtSignal()
-    right_click = pyqtSignal()
-
-    def __init__(self, title, parent):
-        super().__init__(title, parent)
-
-    def mouseMoveEvent(self, e):
-        if e.buttons() != Qt.Qt.RightButton:
-            return
-        mimeData = QMimeData()
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setHotSpot(e.pos() - self.rect().topLeft())
-        dropAction = drag.exec_(Qt.Qt.MoveAction)
-
-    def mousePressEvent(self, event):
-        buttom = event.button()
-        if buttom == Qt.Qt.LeftButton:
-            self.left_click.emit()
-            print('шмяк по левой')
-        if buttom == Qt.Qt.RightButton:
-            self.right_click.emit()
-            print('шмяк по правой')
-
-
-class prog(QWidget):
+class UserDB():
     def __init__(self):
-        super().__init__()
-        self.initUI()
+        self.engine = sqa.create_engine("sqlite:///users.db")
+        self.conn = self.engine.connect()
+        self.data = sqa.MetaData(self.engine)
+        self.User_table = sqa.Table('users', self.data,
+                                    sqa.Column('id', sqa.Integer(), primary_key=True),
+                                    sqa.Column('name', sqa.String(255), unique=True),
+                                    sqa.Column('password', sqa.String(255)),
+                                    sqa.Column('image_path',  sqa.String(255), default='PASS')
+                                    )
+        self.data.create_all(self.engine)
 
-    def initUI(self):
-        self.setAcceptDrops(True)
-        self.button = QPushButton('Создать объект "Кнопка"', self)
-        self.button.move(100, 65)
-        self.button.clicked.connect(self.generate)
-        self.spin = []
+    def insert_user_info(self, user_name, password):
+        ins = self.User_table.insert().values(name = user_name,
+                                              password = password,
+                                              )
+        self.conn.execute(ins)
 
-    def generate(self):
-        button_d = Button('Button', self)
-        button_d.move(150, 65)
-        button_d.show()
-        # button_d.left_click.connect(self.generate)
-        button_d.right_click.connect(self.ident_but)
-        self.spin.append(button_d)
-
-    def ident_but(self):
-        self.mov_but = self.sender()
-
-    def dragEnterEvent(self, e):
-        e.accept()
-
-    def dropEvent(self, e):
-        position = e.pos()
-        self.mov_but.move(position)
-        e.setDropAction(Qt.Qt.MoveAction)
-        e.accept()
+    def insert_user_pic(self, image_path):
+        upd = sqa.update(self.User_table).where(self.User_table.c.image_path == 'PASS').values(image_path=image_path)
+        self.conn.execute(upd)
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = prog()
-    ex.show()
-    app.exec_()
+    def select_all_data(self):
+        select = sqa.select([self.User_table])
+        return self.conn.execute(select).fetchall()
+
+    def get_password(self, name):
+        select = sqa.select([self.User_table]).where(self.User_table.c.name == name)
+        r = self.conn.execute(select)
+        return r.fetchone()[2]
+
+    def delete_all(self):
+        self.data.drop_all()

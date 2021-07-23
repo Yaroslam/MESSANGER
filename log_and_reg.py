@@ -6,7 +6,10 @@ from PyQt5.QtGui import QPixmap, QRegion
 from PyQt5.QtCore import QRect
 from main import Massenger
 import sys
-from CONST import *
+from CONST import get_image, compare_str, get_diveded_str
+import DB
+import User
+
 
 
 class Login_or_Register(QMainWindow):
@@ -38,18 +41,18 @@ class Login_or_Register(QMainWindow):
 
     def click_reg(self):
         self.close()
-        REG = True
-        self.next = Get_data()
+        self.next = Get_data(True)
 
     def click_log(self):
         self.close()
-        LOG = True
-        self.next = Get_data()
+        self.next = Get_data(False)
 
 
 class Get_data(QMainWindow):
-    def __init__(self):
+    def __init__(self, isReg):
         super().__init__()
+        self.isREG = isReg
+        self.db = DB.UserDB()
         self.initUI()
 
     def initUI(self):
@@ -83,17 +86,22 @@ class Get_data(QMainWindow):
         self.move(qr.topLeft())
 
     def next_window(self):
-        if not REG:
+        self.User = User.User(self.login_label.text())
+        if self.isREG:
+            self.db.insert_user_info(self.login_label.text(), self.password_label.text())
             self.close()
-            self.next = Get_image()
+            self.next = Get_image(self.User)
         else:
-            self.close()
-            self.next = Massenger()
+            if self.db.get_password(self.login_label.text()) == self.password_label.text():
+                self.close()
+                self.next = Massenger()
 
 
 class Get_image(QMainWindow):
-    def __init__(self):
+    def __init__(self, User):
         super().__init__()
+        self.User = User
+        self.db = DB.UserDB()
         self.initUI()
 
     def get_path(self):
@@ -103,9 +111,10 @@ class Get_image(QMainWindow):
             i += 1
             wb_patch = QFileDialog.getOpenFileName()[0]
             if i == 2:
-                return''
+                return 'PASS'
 
-        new_image_path = get_image(wb_patch)
+        new_image_path = get_image(self.User.get_name(), wb_patch)
+        self.db.insert_user_pic(new_image_path)
 
         pixmap = QPixmap(new_image_path)
         self.label.setPixmap(pixmap)
@@ -119,6 +128,7 @@ class Get_image(QMainWindow):
 
         ok_btn = QPushButton('ok', self)
         ok_btn.move(160, 310)
+        ok_btn.clicked.connect(self.next_window)
 
         self.label = QLabel(self)
         self.label.resize(156, 156)
@@ -137,6 +147,10 @@ class Get_image(QMainWindow):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+    def next_window(self):
+        self.close()
+        self.next = Massenger()
 
 
 if __name__ == '__main__':

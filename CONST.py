@@ -1,7 +1,7 @@
 from PIL import Image ,ImageOps, ImageDraw
 
-LOG = False
-REG = True
+
+REG = False
 FORMATS = [".jpg", ".jpeg", ".JPG", ".JPEG", ".jpe" ,".JPE", ".PNG", ".png"]
 SIZE = (150, 150)
 
@@ -19,13 +19,13 @@ def compare_str(string):
     return isSame
 
 
-def get_image(path):
+def get_image(new_path,path):
     im = Image.open(path)
     im = crop(im, SIZE)
     im.putalpha(prepare_mask(SIZE, 4))
-    im.save('resize-output.png')
+    im.save(new_path+'.png')
     print(im.size)
-    return 'resize-output.png'
+    return new_path+'.png'
 
 def prepare_mask(size, antialias = 2):
     mask = Image.new('L', (size[0] * antialias, size[1] * antialias), 0)

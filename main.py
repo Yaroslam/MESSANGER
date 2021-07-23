@@ -57,6 +57,7 @@ class Massenger(QMainWindow):
         item.setText(message)
         self.message_box.setIconSize(QSize(50,50))
         self.message_box.addItem(item)
+
     def render_image(self):
         pass
 
