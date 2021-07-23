@@ -33,5 +33,10 @@ class UserDB():
         r = self.conn.execute(select)
         return r.fetchone()[2]
 
+    def get_pic(self, name):
+        select = sqa.select([self.User_table]).where(self.User_table.c.name == name)
+        r = self.conn.execute(select)
+        return r.fetchone()[3]
+
     def delete_all(self):
         self.data.drop_all()

@@ -94,7 +94,7 @@ class Get_data(QMainWindow):
         else:
             if self.db.get_password(self.login_label.text()) == self.password_label.text():
                 self.close()
-                self.next = Massenger()
+                self.next = Massenger(self.User)
 
 
 class Get_image(QMainWindow):
@@ -150,7 +150,7 @@ class Get_image(QMainWindow):
 
     def next_window(self):
         self.close()
-        self.next = Massenger()
+        self.next = Massenger(self.User)
 
 
 if __name__ == '__main__':

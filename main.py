@@ -5,12 +5,15 @@ from PyQt5.QtWidgets import QInputDialog,\
     QListView, QListWidget, QListWidgetItem
 from PyQt5.QtCore import QSize
 import sys
-from User import User
+import User
+from DB import UserDB
 
 
 class Massenger(QMainWindow):
-    def __init__(self):
+    def __init__(self, User):
         super().__init__()
+        self.User = User
+        self.db = UserDB()
         self.initUI()
         self.render_contact()
 
@@ -37,12 +40,11 @@ class Massenger(QMainWindow):
         send_button.move(868+460+10, 924)
         send_button.clicked.connect(self.get_message)
 
-        search_image = QPixmap('maxresdefault.jpg')
+        search_image = QPixmap(self.db.get_pic(self.User.get_name()))
         search_image_label = QLabel(self)
         search_image_label.move(10,10)
         search_image_label.resize(65,65)
         search_image_label.setPixmap(search_image)
-
 
         self.setFixedSize(1440, 1024)
         self.center()
@@ -51,12 +53,16 @@ class Massenger(QMainWindow):
 
     def get_message(self):
         message = self.write_box.text()
-        item = QListWidgetItem()
-        icon = QIcon('resize-output.png')
-        item.setIcon(icon)
-        item.setText(message)
-        self.message_box.setIconSize(QSize(50,50))
-        self.message_box.addItem(item)
+        if message == '':
+            return
+        else:
+            item = QListWidgetItem()
+            icon = QIcon(self.db.get_pic(self.User.get_name()))
+            item.setIcon(icon)
+            item.setText(message)
+            self.message_box.setIconSize(QSize(50,50))
+            self.message_box.addItem(item)
+            self.write_box.clear()
 
     def render_image(self):
         pass
