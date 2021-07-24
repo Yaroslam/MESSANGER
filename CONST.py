@@ -1,6 +1,8 @@
-from PIL import Image ,ImageOps, ImageDraw
+from PIL import Image , ImageDraw
+import os
 
-
+PIC_PATH = './pic/'
+DB_PATH = 'databases/'
 REG = False
 FORMATS = [".jpg", ".jpeg", ".JPG", ".JPEG", ".jpe" ,".JPE", ".PNG", ".png"]
 SIZE = (150, 150)
@@ -19,13 +21,15 @@ def compare_str(string):
     return isSame
 
 
-def get_image(new_path,path):
+def get_image(new_path ,path):
+    if not os.path.isdir(PIC_PATH):
+        os.mkdir(PIC_PATH)
     im = Image.open(path)
     im = crop(im, SIZE)
     im.putalpha(prepare_mask(SIZE, 4))
-    im.save(new_path+'.png')
+    im.save(PIC_PATH+new_path+'.png')
     print(im.size)
-    return new_path+'.png'
+    return PIC_PATH+new_path+'.png'
 
 def prepare_mask(size, antialias = 2):
     mask = Image.new('L', (size[0] * antialias, size[1] * antialias), 0)

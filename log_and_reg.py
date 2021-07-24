@@ -1,9 +1,7 @@
-from PyQt5.QtWidgets import QMessageBox, QProgressBar, QFrame, QFileDialog,\
-    QInputDialog, QPushButton, QWidget, \
+from PyQt5.QtWidgets import  QFrame, QFileDialog, QPushButton, \
     QDesktopWidget, QApplication, QMainWindow, \
     QLineEdit, QLabel
-from PyQt5.QtGui import QPixmap, QRegion
-from PyQt5.QtCore import QRect
+from PyQt5.QtGui import QPixmap
 from main import Massenger
 import sys
 from CONST import get_image, compare_str, get_diveded_str
@@ -86,6 +84,8 @@ class Get_data(QMainWindow):
         self.move(qr.topLeft())
 
     def next_window(self):
+        if self.login_label.text() == '' or self.password_label.text() == '':
+            return
         self.User = User.User(self.login_label.text())
         if self.isREG:
             self.db.insert_user_info(self.login_label.text(), self.password_label.text())
@@ -151,7 +151,6 @@ class Get_image(QMainWindow):
     def next_window(self):
         self.close()
         self.next = Massenger(self.User)
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

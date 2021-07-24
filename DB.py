@@ -1,4 +1,5 @@
 import sqlalchemy as sqa
+from CONST import DB_PATH
 
 class UserDB():
     def __init__(self):
@@ -32,6 +33,11 @@ class UserDB():
         select = sqa.select([self.User_table]).where(self.User_table.c.name == name)
         r = self.conn.execute(select)
         return r.fetchone()[2]
+
+    def get_users_by_key(self, key_word):
+        looking_for = '%{0}%'.format(key_word)
+        select = sqa.select(self.User_table).where(self.User_table.c.name.like(looking_for))
+        return self.conn.execute(select).fetchall()
 
     def get_pic(self, name):
         select = sqa.select([self.User_table]).where(self.User_table.c.name == name)

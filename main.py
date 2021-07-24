@@ -1,10 +1,9 @@
-from PyQt5.QtGui import QPixmap, QStandardItemModel, QIcon, QStandardItem
-from PyQt5.QtWidgets import QInputDialog,\
+from PyQt5.QtGui import QPixmap,  QIcon
+from PyQt5.QtWidgets import \
     QPushButton, QWidget, QDesktopWidget, QApplication, \
     QMainWindow, QLineEdit, QLabel, QScrollArea, QFrame, QGridLayout, QVBoxLayout, \
-    QListView, QListWidget, QListWidgetItem
+    QListWidget, QListWidgetItem
 from PyQt5.QtCore import QSize
-import sys
 import User
 from DB import UserDB
 
@@ -15,7 +14,7 @@ class Massenger(QMainWindow):
         self.User = User
         self.db = UserDB()
         self.initUI()
-        self.render_contact()
+        self.render_contact('all')
 
     def initUI(self):
         self.write_box = QLineEdit(self)
@@ -40,11 +39,15 @@ class Massenger(QMainWindow):
         send_button.move(868+460+10, 924)
         send_button.clicked.connect(self.get_message)
 
-        search_image = QPixmap(self.db.get_pic(self.User.get_name()))
-        search_image_label = QLabel(self)
-        search_image_label.move(10,10)
-        search_image_label.resize(65,65)
-        search_image_label.setPixmap(search_image)
+        search_icon_size = QSize(65,65)
+        search_icon = QIcon('./pic/search.png')
+        search_button = QPushButton(self)
+        search_button.setIcon(search_icon)
+        search_button.setStyleSheet('border:none')
+        search_button.setIconSize(search_icon_size)
+        search_button.move(10,10)
+        search_button.resize(65,65)
+        search_button.clicked.connect(self.search_contacts)
 
         self.setFixedSize(1440, 1024)
         self.center()
@@ -67,19 +70,25 @@ class Massenger(QMainWindow):
     def render_image(self):
         pass
 
-    def render_contact(self):
+    def render_contact(self, key_word):
         label = QVBoxLayout()
-        for i in range(10):
-            visibale_name = QLabel('boris')
+
+        if key_word == 'all':
+            users = self.db.select_all_data()
+            count_of_users = len(users)
+        else:
+            users = self.db.get_users_by_key(key_word)
+            count_of_users = len(users)
+
+        for i in range(count_of_users):
+            if users[i][1] == self.User.get_name():
+                continue
+            visibale_name = QLabel(users[i][1])
             visible_last_messagge = QLabel('soxi')
 
             visibale_image = QLabel()
             visibale_image.resize(65, 65)
-            visibale_image.setFrameStyle(QFrame.Panel | QFrame.Plain)
-            visibale_image.setLineWidth(2)
-            visibale_image.setStyleSheet("border: 3px solid black; border-radius: 32px;")
-
-            pixmap = QPixmap('resize-output.png')
+            pixmap = QPixmap(users[i][3])
             visibale_image.setPixmap(pixmap)
 
             grid = QGridLayout()
@@ -93,7 +102,11 @@ class Massenger(QMainWindow):
         self.people_box.setWidget(w)
 
     def search_contacts(self):
-        pass
+        key = self.search_box.text()
+        if key == '':
+            key = 'all'
+        print(key)
+        self.render_contact(key)
 
 
 
