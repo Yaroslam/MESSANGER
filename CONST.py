@@ -2,7 +2,7 @@ from PIL import Image , ImageDraw
 import os
 
 PIC_PATH = './pic/'
-DB_PATH = 'databases/'
+DB_PATH = 'databases'
 REG = False
 FORMATS = [".jpg", ".jpeg", ".JPG", ".JPEG", ".jpe" ,".JPE", ".PNG", ".png"]
 SIZE = (150, 150)

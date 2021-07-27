@@ -1,9 +1,11 @@
 import sqlalchemy as sqa
 from CONST import DB_PATH
+import sqlite3
+import os
 
 class UserDB():
     def __init__(self):
-        self.engine = sqa.create_engine("sqlite:///users.db")
+        self.engine = sqa.create_engine("sqlite:///"+DB_PATH+"/users.db")
         self.conn = self.engine.connect()
         self.data = sqa.MetaData(self.engine)
         self.User_table = sqa.Table('users', self.data,
