@@ -86,7 +86,7 @@ class Get_data(QMainWindow):
     def next_window(self):
         if self.login_label.text() == '' or self.password_label.text() == '':
             return
-        self.User = User.User(self.login_label.text())
+        self.User = User.User(self.login_label.text(), None, None) #!!!!!!!!!!!!!!!!
         if self.isREG:
             self.db.insert_user_info(self.login_label.text(), self.password_label.text())
             self.close()

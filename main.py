@@ -2,15 +2,34 @@ from PyQt5.QtGui import QPixmap,  QIcon
 from PyQt5.QtWidgets import \
     QPushButton, QWidget, QDesktopWidget, QApplication, \
     QMainWindow, QLineEdit, QLabel, QScrollArea, QFrame, QGridLayout, QVBoxLayout, \
-    QListWidget, QListWidgetItem
+    QListWidget, QListWidgetItem, QButtonGroup
 from PyQt5.QtCore import QSize
 import User
-from DB import UserDB
+import os
+import CONST
+from DB import UserDB, MesagesDB
+from MyQButton import  MyQButton
+
+#TODO
+# написать сервер
+    #TODO
+    # иформация приходит в виде JSON
+    # постоянно следит за поступлением новых сигналов
+    # отпраляет пользователю, которому пришло сообщение уведомление, и выводит сообщение через гет_мессаге
+    # подгрузка предыдущих сообщений
+#TODO
+# написать гет_мессаге
+
+#TODO
+# разобраться с классом USER
+
+
 
 
 class Massenger(QMainWindow):
     def __init__(self, User):
         super().__init__()
+        self.contacts_butn_group = QButtonGroup()
         self.User = User
         self.db = UserDB()
         self.initUI()
@@ -37,10 +56,10 @@ class Massenger(QMainWindow):
         send_button = QPushButton('send', self)
         send_button.resize(65, 65)
         send_button.move(868+460+10, 924)
-        send_button.clicked.connect(self.get_message)
+        send_button.clicked.connect(self.send_message)
 
         search_icon_size = QSize(65,65)
-        search_icon = QIcon('./pic/search.png')
+        search_icon = QIcon('./pic/as.png')
         search_button = QPushButton(self)
         search_button.setIcon(search_icon)
         search_button.setStyleSheet('border:none')
@@ -54,11 +73,14 @@ class Massenger(QMainWindow):
         self.setWindowTitle('Login')
         self.show()
 
-    def get_message(self):
+    def send_message(self):
         message = self.write_box.text()
+        print(self.User.get_send_IP())
+        print(self.start_diolog())
         if message == '':
             return
-        else:
+        elif self.start_diolog() == None:
+            message = "Подключитесь к диалогу"
             item = QListWidgetItem()
             icon = QIcon(self.db.get_pic(self.User.get_name()))
             item.setIcon(icon)
@@ -66,9 +88,17 @@ class Massenger(QMainWindow):
             self.message_box.setIconSize(QSize(50,50))
             self.message_box.addItem(item)
             self.write_box.clear()
+            return
+        elif self.start_diolog() == "OK":
+            item = QListWidgetItem()
+            icon = QIcon(self.db.get_pic(self.User.get_name()))
+            item.setIcon(icon)
+            item.setText(message)
+            self.message_box.setIconSize(QSize(50, 50))
+            self.message_box.addItem(item)
+            self.message_db.insetr_message(message, 4)
+            self.write_box.clear()
 
-    def render_image(self):
-        pass
 
     def render_contact(self, key_word):
         label = QVBoxLayout()
@@ -85,21 +115,42 @@ class Massenger(QMainWindow):
                 continue
             visibale_name = QLabel(users[i][1])
             visible_last_messagge = QLabel('soxi')
-
-            visibale_image = QLabel()
-            visibale_image.resize(65, 65)
-            pixmap = QPixmap(users[i][3])
-            visibale_image.setPixmap(pixmap)
+            visibale_image = QIcon(users[i][3])
+            contact_button = MyQButton(users[i][0])
+            contact_button.clicked.connect(self.go_to_dilog)
+            contact_button.setCheckable(True)
+            contact_button.setIcon(visibale_image)
+            contact_button.setStyleSheet('border:none')
+            contact_button.setIconSize(QSize(65,65))
+            contact_button.resize(65, 65)
 
             grid = QGridLayout()
             grid.addWidget(visibale_name, 0, 10)
             grid.addWidget(visible_last_messagge, 1, 10)
-            grid.addWidget(visibale_image, 0,0, 0, 4)
-
+            grid.addWidget(contact_button, 0,0, 0, 4)
             label.addLayout(grid)
+
         w = QWidget()
         w.setLayout(label)
         self.people_box.setWidget(w)
+
+    def go_to_dilog(self):
+        sndr = self.sender()
+        to_id = sndr.get_id()
+        from_id = self.db.get_id(self.User.get_name())
+        print(f"./{CONST.DB_PATH}/{from_id}to{to_id}")
+        if from_id > to_id:
+            if os.path.exists(f"./{CONST.DB_PATH}/{from_id}to{to_id}"):
+                pass
+            else:
+                self.message_db = MesagesDB(from_id, to_id)
+        else:
+            if os.path.exists(f"./{CONST.DB_PATH}/{to_id}to{from_id}"):
+                pass
+            else:
+                self.message_db = MesagesDB(to_id, from_id)
+        self.User.set_send_ip(to_id)
+
 
     def search_contacts(self):
         key = self.search_box.text()
@@ -108,7 +159,11 @@ class Massenger(QMainWindow):
         print(key)
         self.render_contact(key)
 
-
+    def start_diolog(self):
+        if self.User.get_send_IP() == None:
+            return None
+        else:
+            return "OK"
 
 
     def center(self):

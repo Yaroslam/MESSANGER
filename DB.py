@@ -36,6 +36,11 @@ class UserDB():
         r = self.conn.execute(select)
         return r.fetchone()[2]
 
+    def get_id(self, name):
+        select = sqa.select([self.User_table]).where(self.User_table.c.name == name)
+        r = self.conn.execute(select)
+        return r.fetchone()[0]
+
     def get_users_by_key(self, key_word):
         looking_for = '%{0}%'.format(key_word)
         select = sqa.select(self.User_table).where(self.User_table.c.name.like(looking_for))
@@ -48,3 +53,21 @@ class UserDB():
 
     def delete_all(self):
         self.data.drop_all()
+
+class MesagesDB():
+    def __init__(self, from_id, to_id):
+        self.engine = sqa.create_engine(f"sqlite:///{DB_PATH}/{from_id}to{to_id}.db")
+        self.conn = self.engine.connect()
+        self.data = sqa.MetaData(self.engine)
+        self.messages_table = sqa.Table(f'{from_id}to{to_id}', self.data,
+                                    sqa.Column('id', sqa.Integer(), primary_key=True),
+                                    sqa.Column('from_id', sqa.Integer()),
+                                    sqa.Column('message', sqa.String(255)),
+                                    )
+        self.data.create_all(self.engine)
+
+    def insetr_message(self, message, from_id):
+        ins = self.messages_table.insert().values(from_id  = from_id,
+                                                  message = message
+                                              )
+        self.conn.execute(ins)
