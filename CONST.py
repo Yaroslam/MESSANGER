@@ -1,6 +1,7 @@
 from PIL import Image , ImageDraw
 import os
-
+HOST = '127.0.0.1'
+PORT = 1233
 PIC_PATH = './pic/'
 DB_PATH = 'databases'
 REG = False

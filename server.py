@@ -1,17 +1,55 @@
-
 import socket
+import os
+from _thread import *
+import json
+import CONST
+from DB import UserDB, MesagesDB
 
-HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
-PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
+class Server():
+    def __init__(self):
+        self.users_ip = []
+        self.Users = UserDB()
+        self.start_server()
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen()
-    conn, addr = s.accept()
-    with conn:
-        print('Connected by', addr)
+    def start_server(self):
+        self.ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.ServerSocket.bind((CONST.HOST, CONST.PORT))
+        except socket.error as e:
+            print(str(e))
+        self.ServerSocket.listen(5)
         while True:
-            data = conn.recv(1024)
-            if not data:
-                break
-            conn.sendall(data)
+            Client, address = self.ServerSocket.accept()
+            self.users_ip.append(address[0])
+            print('Connected to: ' + address[0] + ':' + str(address[1]))
+            start_new_thread(self.threaded_client, (Client,))
+
+    def close_server(self):
+        self.ServerSocket.close()
+
+    def threaded_client(self ,connection):
+        while True:
+            raw_data = connection.recv(2048)
+            if not raw_data:
+                continue
+            data = json.loads(raw_data.decode("utf-8"))
+            self.add_data_to_db(data)
+        connection.close()
+
+    def add_data_to_db(self, data):
+        print(data['from'], data['to'])
+        if data['from'] > data['to']:
+            self.Messanges = MesagesDB(data['from'], data['to'])
+        else:
+            self.Messanges = MesagesDB(data['to'], data['from'])
+
+        self.Messanges.insetr_message(data['message'], data['from'])
+        send_ip = self.Users.get_ip_by_id(data['to'])
+        if send_ip in self.users_ip:
+            self.ServerSocket.sendto('NEW_MESSAGE'.encode('utf-8'), send_ip)
+        else:
+            pass
+
+server = Server()
+
+

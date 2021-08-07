@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import \
     QListWidget, QListWidgetItem, QButtonGroup
 from PyQt5.QtCore import QSize
 import User
+from client import CLient_socket
 import os
 import CONST
 from DB import UserDB, MesagesDB
@@ -29,11 +30,20 @@ from MyQButton import  MyQButton
 class Massenger(QMainWindow):
     def __init__(self, User):
         super().__init__()
-        self.contacts_butn_group = QButtonGroup()
+        print('OK1')
+        self.client_sock = CLient_socket()
+        print('OK2')
         self.User = User
+        print('OK3')
         self.db = UserDB()
+        print('OK4')
         self.initUI()
+        print('OK5')
         self.render_contact('all')
+        print('OK6')
+        self.db.insert_user_IP(self.client_sock.connection())
+        print('OK7')
+
 
     def initUI(self):
         self.write_box = QLineEdit(self)
@@ -75,10 +85,10 @@ class Massenger(QMainWindow):
 
     def send_message(self):
         message = self.write_box.text()
-        print(self.User.get_send_IP())
+        print(self.User.get_send_id())
         print(self.start_diolog())
         if message == '':
-            return
+            pass
         elif self.start_diolog() == None:
             message = "Подключитесь к диалогу"
             item = QListWidgetItem()
@@ -88,17 +98,30 @@ class Massenger(QMainWindow):
             self.message_box.setIconSize(QSize(50,50))
             self.message_box.addItem(item)
             self.write_box.clear()
-            return
         elif self.start_diolog() == "OK":
             item = QListWidgetItem()
             icon = QIcon(self.db.get_pic(self.User.get_name()))
+            data = self.client_sock.compare_data(self.User.get_own_id(),self.User.get_send_id(), message)
+            self.client_sock.send_data(data)
             item.setIcon(icon)
             item.setText(message)
             self.message_box.setIconSize(QSize(50, 50))
             self.message_box.addItem(item)
-            self.message_db.insetr_message(message, 4)
             self.write_box.clear()
 
+    def render_messages(self):
+        while True:
+            if self.client_sock.get_data() == 1:
+                message_info = self.message_db.get_last_message()
+                item = QListWidgetItem()
+                icon = QIcon(self.db.get_pic_by_id(message_info[1]))
+                item.setIcon(icon)
+                item.setText(message_info[2])
+                self.message_box.setIconSize(QSize(50, 50))
+                self.message_box.addItem(item)
+                self.write_box.clear()
+            else:
+                continue
 
     def render_contact(self, key_word):
         label = QVBoxLayout()
@@ -135,6 +158,7 @@ class Massenger(QMainWindow):
         self.people_box.setWidget(w)
 
     def go_to_dilog(self):
+        self.message_box.clear()
         sndr = self.sender()
         to_id = sndr.get_id()
         from_id = self.db.get_id(self.User.get_name())
@@ -149,7 +173,20 @@ class Massenger(QMainWindow):
                 pass
             else:
                 self.message_db = MesagesDB(to_id, from_id)
-        self.User.set_send_ip(to_id)
+        self.User.set_send_id(to_id)
+        self.render_previous_messages()
+        return to_id
+
+    def render_previous_messages(self):
+        previous = self.message_db.select_all_masseges()
+        print(previous)
+        for i in previous:
+            item = QListWidgetItem()
+            icon = QIcon(self.db.get_pic_by_id(i[1]))
+            item.setIcon(icon)
+            item.setText(i[2])
+            self.message_box.setIconSize(QSize(50, 50))
+            self.message_box.addItem(item)
 
 
     def search_contacts(self):
@@ -160,7 +197,7 @@ class Massenger(QMainWindow):
         self.render_contact(key)
 
     def start_diolog(self):
-        if self.User.get_send_IP() == None:
+        if self.User.get_send_id() == None:
             return None
         else:
             return "OK"
