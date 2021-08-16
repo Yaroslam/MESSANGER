@@ -1,5 +1,4 @@
 import socket
-import os
 from _thread import *
 import json
 import CONST
@@ -47,5 +46,3 @@ class Server():
         send_ip = self.Users.get_ip_by_id(data['to'])
 
 server = Server()
-
-
