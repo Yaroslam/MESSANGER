@@ -3,10 +3,9 @@ from CONST import DB_PATH
 import sqlite3
 import os
 
-
 class UserDB():
     def __init__(self):
-        self.engine = sqa.create_engine("sqlite:///" + DB_PATH + "/users.db")
+        self.engine = sqa.create_engine("sqlite:///" + DB_PATH + "/users.db", connect_args = {'check_same_thread': False})
         self.conn = self.engine.connect()
         self.data = sqa.MetaData(self.engine)
         self.User_table = sqa.Table('users', self.data,
@@ -44,7 +43,8 @@ class UserDB():
     def get_id(self, name):
         select = sqa.select([self.User_table]).where(self.User_table.c.name == name)
         r = self.conn.execute(select)
-        return r.fetchone()[0]
+        k = r.fetchone()
+        return k[0]
 
     def get_ip_by_id(self, id):
         select = sqa.select([self.User_table]).where(self.User_table.c.id == id)
@@ -72,7 +72,7 @@ class UserDB():
 
 class MesagesDB():
     def __init__(self, from_id, to_id):
-        self.engine = sqa.create_engine(f"sqlite:///{DB_PATH}/{from_id}to{to_id}.db")
+        self.engine = sqa.create_engine(f"sqlite:///{DB_PATH}/{from_id}to{to_id}.db",connect_args = {'check_same_thread': False})
         self.conn = self.engine.connect()
         self.data = sqa.MetaData(self.engine)
         self.messages_table = sqa.Table(f'{from_id}to{to_id}', self.data,

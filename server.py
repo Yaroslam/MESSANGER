@@ -45,10 +45,6 @@ class Server():
 
         self.Messanges.insetr_message(data['message'], data['from'])
         send_ip = self.Users.get_ip_by_id(data['to'])
-        if send_ip in self.users_ip:
-            self.ServerSocket.sendto('NEW_MESSAGE'.encode('utf-8'), send_ip)
-        else:
-            pass
 
 server = Server()
 

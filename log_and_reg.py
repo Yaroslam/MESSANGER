@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import  QFrame, QFileDialog, QPushButton, \
     QDesktopWidget, QApplication, QMainWindow, \
     QLineEdit, QLabel
 from PyQt5.QtGui import QPixmap
+from style import Style
+import CONST
 from main import Massenger
 import sys
 from CONST import get_image, compare_str, get_diveded_str
@@ -16,15 +18,18 @@ class Login_or_Register(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        reg_btn = QPushButton('register', self)
-        reg_btn.resize(390, 70)
-        reg_btn.move(15, 98)
-        reg_btn.clicked.connect(self.click_reg)
+        self.setStyleSheet(Style.Window.window)
+        self.reg_btn = QPushButton('register', self)
+        self.reg_btn.resize(390, 70)
+        self.reg_btn.move(15, 98)
+        self.reg_btn.clicked.connect(self.click_reg)
+        self.reg_btn.setStyleSheet(Style.button.log_reg)
 
         log_btn = QPushButton('login', self)
         log_btn.resize(390, 70)
         log_btn.move(15, 192)
         log_btn.clicked.connect(self.click_log)
+        log_btn.setStyleSheet(Style.button.log_reg)
 
         self.setFixedSize(420, 420)
         self.center()
@@ -38,6 +43,7 @@ class Login_or_Register(QMainWindow):
         self.move(qr.topLeft())
 
     def click_reg(self):
+        self.reg_btn.setStyleSheet(Style.button.log_reg)
         self.close()
         self.next = Get_data(True)
 
@@ -54,25 +60,34 @@ class Get_data(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        self.setStyleSheet(Style.Window.window)
         self.login_label = QLineEdit(self)
-        self.login_label.move(15, 65)
-        self.login_label.resize(390, 30)
+        self.login_label.move(15, 98)
+        self.login_label.resize(390, 70)
+        self.login_label.setStyleSheet(Style.Label.label)
 
         self.password_label = QLineEdit(self)
-        self.password_label.move(15, 135)
-        self.password_label.resize(390, 30)
+        self.password_label.move(15, 254)
+        self.password_label.resize(390, 70)
+        self.password_label.setStyleSheet(Style.Label.label)
 
-        title_log = QLabel("Enter login", self)
-        title_log.move(15, 40)
+        title_log = QLabel("LOGIN", self)
+        title_log.move(158, 44)
+        title_log.resize(105, 44)
+        title_log.setStyleSheet(Style.Text.text)
 
-        title_pass = QLabel("Enter password", self)
-        title_pass.move(15, 110)
+        title_pass = QLabel("PASSWORD", self)
+        title_pass.resize(195, 52)
+        title_pass.move(113, 185)
+        title_pass.setStyleSheet(Style.Text.text)
 
         self.ok_btn = QPushButton('ok', self)
-        self.ok_btn.move(160, 310)
+        self.ok_btn.move(147, 354)
+        self.ok_btn.resize(125, 40)
         self.ok_btn.clicked.connect(self.next_window)
+        self.ok_btn.setStyleSheet(Style.button.ok)
 
-        self.setFixedSize(420, 350)
+        self.setFixedSize(420, 420)
         self.center()
         self.setWindowTitle('Login')
         self.show()
@@ -87,13 +102,14 @@ class Get_data(QMainWindow):
         if self.login_label.text() == '' or self.password_label.text() == '':
             return
         name = self.login_label.text()
-        self.User = User.User(name, self.db.get_id(name), None) #!!!!!!!!!!!!!!!!
         if self.isREG:
             self.db.insert_user_info(self.login_label.text(), self.password_label.text())
+            self.User = User.User(name, self.db.get_id(name), None)  # !!!!!!!!!!!!!!!!
             self.close()
             self.next = Get_image(self.User)
         else:
             if self.db.get_password(self.login_label.text()) == self.password_label.text():
+                self.User = User.User(name, self.db.get_id(name), None)  # !!!!!!!!!!!!!!!!
                 self.close()
                 self.next = Massenger(self.User)
 
@@ -122,6 +138,7 @@ class Get_image(QMainWindow):
         return new_image_path
 
     def initUI(self):
+        self.setStyleSheet(Style.Window.window)
         get_path_btn = QPushButton('выберите изображение', self)
         get_path_btn.clicked.connect(self.get_path)
         get_path_btn.resize(150,30)
