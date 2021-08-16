@@ -7,48 +7,6 @@ DB_PATH = 'databases'
 REG = False
 FORMATS = [".jpg", ".jpeg", ".JPG", ".JPEG", ".jpe" ,".JPE", ".PNG", ".png"]
 SIZE = (150, 150)
-style_window = "background-color: #bacdff; border-color: #bacdff"
-style_button_log_reg = "background-color: \
-                           #6E83C0; \
-                           color: rgba(0,0,0,255); \
-                           border-style: solid; \
-                           border-radius: 35px; border-width: 3px; \
-                           border-color: #002385; \
-                           font-align: center; \
-                           font-size: 36px; \
-                           font-type: Roboto;"
-style_button_log_reg_clicked = "background-color: \
-                           #6E83C0; \
-                           color: rgba(0,0,0,255); \
-                           border-style: solid; \
-                           border-radius: 35px; border-width: 3px; \
-                           border-color: #00154e; \
-                           font-align: center; \
-                           font-size: 36px; \
-                           font-type: Roboto;"
-
-style_label = "background-color: \
-                           #6E83C0; \
-                           color: rgba(0,0,0,255); \
-                           border-style: solid; \
-                           border-radius: 35px; border-width: 3px; \
-                           border-color: #002385; \
-                           font-align: center; \
-                           font-size: 36px; \
-                           font-type: Roboto;"
-
-style_text = "font-size: 36px; \
-                           font-type: Roboto;"
-
-style_button_ok = "background-color: \
-                           #6E83C0; \
-                           color: rgba(0,0,0,255); \
-                           border-style: solid; \
-                           border-radius: 35px; border-width: 3px; \
-                           border-color: #002385; \
-                           font-align: center; \
-                           font-size: 36px; \
-                           font-type: Roboto;"
 
 def get_diveded_str(string, divide):
     dot = string.find(divide)
