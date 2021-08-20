@@ -26,7 +26,7 @@ class Style():
 
 
     class button():
-        log_reg = "background-color: \
+        log_reg = "QPushButton{background-color: \
                            #8aaaff; \
                            color: rgba(0,0,0,255); \
                            border-style: solid; \
@@ -34,25 +34,51 @@ class Style():
                            border-color: #002385; \
                            font-align: center; \
                            font-size: 36px; \
-                           font-type: Roboto;"
+                           font-type: Roboto;}" \
+                  "QPushButton:hover{background-color: \
+                           #5684fd; \
+                           color: rgba(0,0,0,255); \
+                           border-style: solid; \
+                           border-radius: 35px; border-width: 3px; \
+                           border-color: #002385; \
+                           font-align: center; \
+                           font-size: 36px; \
+                           font-type: Roboto;}"
 
-        ok = "background-color: \
+
+        ok = "QPushButton{background-color: \
                            #8aaaff; \
                            border-style: solid; \
                            border-radius: 20px; border-width: 3px; \
                            border-color: #002385; \
                            font-align: center; \
                            font-size: 28px; \
-                           font-type: Roboto;"
+                           font-type: Roboto;}" \
+             "QPushButton:hover{background-color: \
+                           #5684fd; \
+                           border-style: solid; \
+                           border-radius: 20px; border-width: 3px; \
+                           border-color: #002385; \
+                           font-align: center; \
+                           font-size: 28px; \
+                           font-type: Roboto;}"
 
-        send = "background-color: \
+        send = "QPushButton{background-color: \
                            #8aaaff; \
                            border-style: solid; \
                            border-radius: 15px; border-width: 3px; \
                            border-color: #002385; \
                            font-align: center; \
                            font-size: 24px; \
-                           font-type: Roboto;"
+                           font-type: Roboto;}" \
+                "QPushButton:hover{background-color: \
+                                   #5684fd; \
+                                   border-style: solid; \
+                                   border-radius: 15px; border-width: 3px; \
+                                   border-color: #002385; \
+                                   font-align: center; \
+                                   font-size: 24px; \
+                                   font-type: Roboto;}"
 
 
         class button_clicked():

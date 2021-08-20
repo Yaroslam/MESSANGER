@@ -82,6 +82,10 @@ class MesagesDB():
                                         )
         self.data.create_all(self.engine)
 
+    def get_last(self):
+        pass
+
+
     def insetr_message(self, message, from_id):
         ins = self.messages_table.insert().values(from_id=from_id,
                                                   message=message
