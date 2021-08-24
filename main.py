@@ -4,27 +4,13 @@ from PyQt5.QtWidgets import \
     QMainWindow, QLineEdit, QLabel, QScrollArea, QFrame, QGridLayout, QVBoxLayout, \
     QListWidget, QListWidgetItem, QButtonGroup
 from PyQt5.QtCore import QSize
-import User
+from subscriber import Observer
 from client import CLient_socket
 import os
 import CONST
 from DB import UserDB, MesagesDB
 from MyQButton import  MyQButton
 from style import Style
-#TODO
-# написать сервер
-    #TODO
-    # иформация приходит в виде JSON
-    # постоянно следит за поступлением новых сигналов
-    # отпраляет пользователю, которому пришло сообщение уведомление, и выводит сообщение через гет_мессаге
-    # подгрузка предыдущих сообщений
-#TODO
-# написать гет_мессаге
-
-#TODO
-# разобраться с классом USER
-
-
 
 
 class Massenger(QMainWindow):
@@ -116,19 +102,14 @@ class Massenger(QMainWindow):
             self.message_box.scrollToBottom()
             self.write_box.clear()
 
-    def render_messages(self):
-        while True:
-            if self.client_sock.get_data() == 1:
-                message_info = self.message_db.get_last_message()
-                item = QListWidgetItem()
-                icon = QIcon(self.db.get_pic_by_id(message_info[1]))
-                item.setIcon(icon)
-                item.setText(message_info[2])
-                self.message_box.setIconSize(QSize(50, 50))
-                self.message_box.addItem(item)
-                self.write_box.clear()
-            else:
-                continue
+    def render_messages(self, data):
+        message_info = data['message']
+        item = QListWidgetItem()
+        icon = QIcon(self.db.get_pic_by_id(data['from']))
+        item.setIcon(icon)
+        item.setText(message_info)
+        self.message_box.setIconSize(QSize(50, 50))
+        self.message_box.addItem(item)
 
     def render_contact(self, key_word):
         label = QVBoxLayout()

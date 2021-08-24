@@ -1,9 +1,13 @@
 import socket
 import json
 import CONST
+from subscriber import *
 
-class CLient_socket():
+class CLient_socket(Observer, Subject):
     def __init__(self):
+        from main import Massenger
+        self._observers = []
+        self.attach(Massenger)
         self.Client_socket = socket.socket()
 
     def connection(self):
@@ -35,4 +39,12 @@ class CLient_socket():
         if not data:
             return 0
         else:
-            return 1
+            self._observers[0].render_messages(self, data)
+
+    def attach(self, observer) -> None:
+        print("Subject: Attached an observer.")
+        self._observers.append(observer)
+
+    def detach(self, observer) -> None:
+        self._observers.remove(observer)
+
