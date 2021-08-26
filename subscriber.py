@@ -9,6 +9,12 @@ class Subject(ABC):
     def detach(self, Observer) -> None:
         pass
 
+    @abstractmethod
+    def notify(self) -> None:
+        """
+        Уведомляет всех наблюдателей о событии.
+        """
+        pass
 
 
 class ConcreteSubject(Subject):
@@ -44,7 +50,7 @@ class ConcreteSubject(Subject):
 
 class Observer(ABC):
     @abstractmethod
-    def get_data(self):
+    def get_data(self,subject, data):
         pass
 
 

@@ -11,6 +11,7 @@ import CONST
 from DB import UserDB, MesagesDB
 from MyQButton import  MyQButton
 from style import Style
+import threading
 
 
 class Massenger(QMainWindow):
@@ -29,6 +30,7 @@ class Massenger(QMainWindow):
         print('OK6')
         self.db.insert_user_IP(self.client_sock.connection())
         print('OK7')
+        self.start_thread_send()
 
 
     def initUI(self):
@@ -91,25 +93,27 @@ class Massenger(QMainWindow):
             self.write_box.clear()
             self.message_box.scrollToBottom()
         elif self.start_diolog() == "OK":
-            item = QListWidgetItem()
-            icon = QIcon(self.db.get_pic(self.User.get_name()))
+            # item = QListWidgetItem()
+            # icon = QIcon(self.db.get_pic(self.User.get_name()))
             data = self.client_sock.compare_data(self.User.get_own_id(),self.User.get_send_id(), message)
             self.client_sock.send_data(data)
-            item.setIcon(icon)
-            item.setText(message)
-            self.message_box.setIconSize(QSize(50, 50))
-            self.message_box.addItem(item)
+            # item.setIcon(icon)
+            # item.setText(message)
+            # self.message_box.setIconSize(QSize(50, 50))
+            # self.message_box.addItem(item)
             self.message_box.scrollToBottom()
             self.write_box.clear()
 
-    def render_messages(self, data):
-        message_info = data['message']
-        item = QListWidgetItem()
-        icon = QIcon(self.db.get_pic_by_id(data['from']))
-        item.setIcon(icon)
-        item.setText(message_info)
-        self.message_box.setIconSize(QSize(50, 50))
-        self.message_box.addItem(item)
+    def render_messages(self):
+        while True:
+            data = self.client_sock.get_data()
+            message_info = data['message']
+            item = QListWidgetItem()
+            icon = QIcon(self.db.get_pic_by_id(data['from']))
+            item.setIcon(icon)
+            item.setText(message_info)
+            self.message_box.setIconSize(QSize(50, 50))
+            self.message_box.addItem(item)
 
     def render_contact(self, key_word):
         label = QVBoxLayout()
@@ -196,6 +200,16 @@ class Massenger(QMainWindow):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+    def start_thread_send(self):
+        background_thread = threading.Thread(target=self.send_message)
+        background_thread.daemon = True
+        background_thread.start()
+
+    def start_thread_get(self):
+        background_thread = threading.Thread(target=self.render_messages)
+        background_thread.daemon = True
+        background_thread.start()
 
 
 # if __name__ == '__main__':

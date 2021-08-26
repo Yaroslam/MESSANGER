@@ -6,14 +6,12 @@ from subscriber import *
 from client import CLient_socket
 from DB import UserDB, MesagesDB
 
-class Server(Subject):
+class Server():
     def __init__(self):
         self._state = None
-        self._observers = []
         self.users_ip = []
         self.users_port = []
         self.Users = UserDB()
-        self.attach(CLient_socket)
         self.start_server()
 
     def start_server(self):
@@ -42,6 +40,7 @@ class Server(Subject):
 
     def add_data_to_db(self, data):
         print(data['from'], data['to'])
+        print(data['message'])
         if data['from'] > data['to']:
             self.Messanges = MesagesDB(data['from'], data['to'])
         else:
@@ -49,19 +48,10 @@ class Server(Subject):
 
         self.Messanges.insetr_message(data['message'], data['from'])
 
-    def attach(self, observer) -> None:
-        print("Subject: Attached an observer.")
-        self._observers.append(observer)
-
-    def detach(self, observer) -> None:
-        self._observers.remove(observer)
-
     def send_data(self, data, connection):
-        send_ip = (self.Users.get_ip_by_id(data['to']))
+        send_ip = (self.Users.get_ip_by_id(data['from']))
         Json_str = json.dumps(data, ensure_ascii=False).encode("utf-8")
         i = self.users_ip.index(send_ip)
         connection.sendto(Json_str, (self.users_ip[i], self.users_port[i]))
-        self._observers[0].get_data(self)
-
 
 server = Server()

@@ -2,13 +2,12 @@ import socket
 import json
 import CONST
 from subscriber import *
+import threading
 
-class CLient_socket(Observer, Subject):
+class CLient_socket():
     def __init__(self):
-        from main import Massenger
-        self._observers = []
-        self.attach(Massenger)
         self.Client_socket = socket.socket()
+        print(1)
 
     def connection(self):
         try:
@@ -35,16 +34,6 @@ class CLient_socket(Observer, Subject):
         return drop_ip
 
     def get_data(self):
-        data = self.Client_socket.recv(1024)
-        if not data:
-            return 0
-        else:
-            self._observers[0].render_messages(self, data)
-
-    def attach(self, observer) -> None:
-        print("Subject: Attached an observer.")
-        self._observers.append(observer)
-
-    def detach(self, observer) -> None:
-        self._observers.remove(observer)
+            data = self.Client_socket.recv(1024)
+            return data
 
