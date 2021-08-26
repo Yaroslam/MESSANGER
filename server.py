@@ -22,6 +22,7 @@ class Server():
             Client, address = self.ServerSocket.accept()
             self.users_ip.append(address[0])
             self.users_port.append(address[1])
+            print(self.users_ip, self.users_port)
             print('Connected to: ' + address[0] + ':' + str(address[1]))
             start_new_thread(self.threaded_client, (Client,))
 
@@ -49,9 +50,9 @@ class Server():
         self.Messanges.insetr_message(data['message'], data['from'])
 
     def send_data(self, data, connection):
-        send_ip = (self.Users.get_ip_by_id(data['from']))
+        # send_ip = (self.Users.get_ip_by_id(data['to']))
         Json_str = json.dumps(data, ensure_ascii=False).encode("utf-8")
-        i = self.users_ip.index(send_ip)
-        connection.sendto(Json_str, (self.users_ip[i], self.users_port[i]))
+        # i = self.users_ip.index(send_ip)
+        connection.sendto(Json_str, (self.users_ip[0], self.users_port[0]))
 
 server = Server()

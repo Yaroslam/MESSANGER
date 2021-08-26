@@ -35,5 +35,6 @@ class CLient_socket():
 
     def get_data(self):
             data = self.Client_socket.recv(1024)
+            data = json.loads(data.decode("utf-8"))
             return data
 
