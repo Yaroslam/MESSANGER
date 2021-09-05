@@ -80,6 +80,22 @@ class Style():
                                    font-size: 24px; \
                                    font-type: Roboto;}"
 
+        Qmessagebutton = "QMessageBox QPushButton{background-color: \
+                           #8aaaff; \
+                           border-style: solid; \
+                           border-radius: 15px; border-width: 3px; \
+                           border-color: #002385; \
+                           font-align: center; \
+                           font-size: 24px; \
+                           font-type: Roboto;}" \
+                "QMessageBox QPushButton:hover{background-color: \
+                                   #5684fd; \
+                                   border-style: solid; \
+                                   border-radius: 15px; border-width: 3px; \
+                                   border-color: #002385; \
+                                   font-align: center; \
+                                   font-size: 24px; \
+                                   font-type: Roboto;}"
 
         class button_clicked():
             log_reg =  "background-color: \

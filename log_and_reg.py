@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import  QFrame, QFileDialog, QPushButton, \
     QLineEdit, QLabel
 from PyQt5.QtGui import QPixmap
 from style import Style
-import CONST
+from CustomMessageWindow import MessageWindow
 from main import Massenger
 import sys
 from CONST import get_image, compare_str, get_diveded_str
@@ -100,6 +100,8 @@ class Get_data(QMainWindow):
 
     def next_window(self):
         if self.login_label.text() == '' or self.password_label.text() == '':
+            msg = MessageWindow('empty log')
+            msg.exec()
             return
         name = self.login_label.text()
         if self.isREG:

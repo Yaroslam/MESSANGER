@@ -7,7 +7,9 @@ DB_PATH = 'databases'
 REG = False
 FORMATS = [".jpg", ".jpeg", ".JPG", ".JPEG", ".jpe" ,".JPE", ".PNG", ".png"]
 SIZE = (150, 150)
-
+MESSAGES_PIC = {}
+MESSAGES_TEXT = {'empty log': 'заполните поля логина и пароля', 'wrong login': 'вы ввели неверные данные', 'empty pic': 'выберите фото профиля',
+                 'no dialog': 'войдите в диалог'}
 def get_diveded_str(string, divide):
     dot = string.find(divide)
     return string[dot:]

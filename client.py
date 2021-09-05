@@ -1,10 +1,13 @@
 import socket
 import json
 import CONST
+from subscriber import *
+import threading
 
 class CLient_socket():
     def __init__(self):
         self.Client_socket = socket.socket()
+        print(1)
 
     def connection(self):
         try:
@@ -31,8 +34,7 @@ class CLient_socket():
         return drop_ip
 
     def get_data(self):
-        data = self.Client_socket.recv(1024)
-        if not data:
-            return 0
-        else:
-            return 1
+            data = self.Client_socket.recv(1024)
+            data = json.loads(data.decode("utf-8"))
+            return data
+
