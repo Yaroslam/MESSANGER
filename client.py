@@ -1,7 +1,6 @@
 import socket
 import json
 import CONST
-from subscriber import *
 import threading
 
 #TODO:
