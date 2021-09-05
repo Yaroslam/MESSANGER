@@ -4,6 +4,12 @@ import CONST
 from subscriber import *
 import threading
 
+#TODO:
+#   2)get_response
+#       2.1)what_would_client_do
+#   3)cover comments
+
+
 class CLient_socket():
     def __init__(self):
         self.Client_socket = socket.socket()
@@ -34,7 +40,14 @@ class CLient_socket():
         return drop_ip
 
     def get_data(self):
-            data = self.Client_socket.recv(1024)
+            data = self.Client_socket.recv(10000)
             data = json.loads(data.decode("utf-8"))
+            print('get data from server')
             return data
 
+    def send_request(self, request, exstra_param):
+        data = {}
+        data['request'] = request
+        if exstra_param != None:
+            data['exstra_param'] = exstra_param
+        self.send_data(data)

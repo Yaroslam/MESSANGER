@@ -94,7 +94,7 @@ class MesagesDB():
 
     def get_last_message(self):
         select = sqa.select([self.messages_table])
-        id = self.conn.execute(select).rowcount()
+        id = self.conn.execute(select).rowcount
         selection = sqa.select(self.messages_table).where(self.messages_table.c.id.like(id))
         r = self.conn.execute(selection)
         return r.fetchone()
@@ -102,3 +102,15 @@ class MesagesDB():
     def select_all_masseges(self):
         select = sqa.select([self.messages_table])
         return self.conn.execute(select).fetchall()
+
+    def select_100_masseges(self, top_border, bottom_border):
+        select = sqa.select([self.messages_table])
+        r = self.conn.execute(select).fetchall()
+        count_messages = len(r)
+        if count_messages<=100:
+            return self.conn.execute(select).fetchall()
+        else:
+            select = sqa.select(self.messages_table).where(sqa.and_((self.messages_table.c.id > count_messages - 100*top_border),
+                                                       (self.messages_table.c.id < count_messages-100*bottom_border)))
+
+            return self.conn.execute(select).fetchall()

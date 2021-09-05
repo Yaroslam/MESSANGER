@@ -1,18 +1,21 @@
-from PyQt5.QtGui import QPixmap,  QIcon
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import \
-    QPushButton, QWidget, QDesktopWidget, QApplication, \
-    QMainWindow, QLineEdit, QLabel, QScrollArea, QFrame, QGridLayout, QVBoxLayout, \
-    QListWidget, QListWidgetItem, QButtonGroup
+    QPushButton, QWidget, QDesktopWidget, \
+    QMainWindow, QLineEdit, QLabel, QScrollArea, QGridLayout, QVBoxLayout, \
+    QListWidget, QListWidgetItem
 from PyQt5.QtCore import QSize
-from subscriber import Observer
 from client import CLient_socket
 import os
 import CONST
 from DB import UserDB, MesagesDB
-from MyQButton import  MyQButton
+from MyQButton import MyQButton
 from style import Style
 import threading
 
+#TODO:
+#   1)rewrite thearding (maybe not)
+#   2)get message only from sever, not direct use DB
+#   3)change messages render
 
 class Massenger(QMainWindow):
     def __init__(self, User):
@@ -81,8 +84,6 @@ class Massenger(QMainWindow):
 
     def send_message(self):
         message = self.write_box.text()
-        print(self.User.get_send_id())
-        print(self.start_diolog())
         if message == '':
             self.message_box.scrollToBottom()
         elif self.start_diolog() == None:
@@ -99,6 +100,7 @@ class Massenger(QMainWindow):
             item = QListWidgetItem()
             icon = QIcon(self.db.get_pic(self.User.get_name()))
             data = self.client_sock.compare_data(self.User.get_own_id(),self.User.get_send_id(), message)
+            self.client_sock.send_request('NEW_MESSAGE', None)
             self.client_sock.send_data(data)
             item.setIcon(icon)
             item.setText(message)
@@ -174,13 +176,15 @@ class Massenger(QMainWindow):
         return to_id
 
     def render_previous_messages(self):
-        previous = self.message_db.select_all_masseges()
-        print(previous)
-        for i in previous:
+        self.client_sock.send_request('LOAD100', [self.User.get_own_id(), self.User.get_send_id()])
+        request_result = self.client_sock.get_data()
+        print(request_result)
+        max_render = len(request_result['pic'])
+        for i in range(max_render):
             item = QListWidgetItem()
-            icon = QIcon(self.db.get_pic_by_id(i[1]))
+            icon = QIcon(request_result['pic'][i])
             item.setIcon(icon)
-            item.setText(i[2])
+            item.setText(request_result['messages'][i])
             self.message_box.setIconSize(QSize(50, 50))
             self.message_box.addItem(item)
 
