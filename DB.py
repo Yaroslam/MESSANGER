@@ -23,11 +23,11 @@ class UserDB():
                                               )
         self.conn.execute(ins)
 
-    def insert_user_pic(self, image_path):
+    def insert_user_pic(self, image_path): #TODO maybe bugs rewrte
         upd = sqa.update(self.User_table).where(self.User_table.c.image_path == 'PASS').values(image_path=image_path)
         self.conn.execute(upd)
 
-    def insert_user_IP(self, ip):
+    def insert_user_IP(self, ip): #TODO maybe bugs rewrte
         upd = sqa.update(self.User_table).where(self.User_table.c.ip == 'PASS').values(ip=ip)
         self.conn.execute(upd)
 

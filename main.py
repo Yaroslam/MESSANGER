@@ -14,14 +14,13 @@ import threading
 
 #TODO:
 #   1)rewrite thearding (maybe not)
-#   2)get message only from sever, not direct use DB
 #   3)change messages render
 
 class Massenger(QMainWindow):
-    def __init__(self, User):
+    def __init__(self, User, socket):
         super().__init__()
         print('OK1')
-        self.client_sock = CLient_socket()
+        self.client_sock = socket
         print('OK2')
         self.User = User
         print('OK3')
@@ -31,7 +30,7 @@ class Massenger(QMainWindow):
         print('OK5')
         self.render_contact('all')
         print('OK6')
-        self.db.insert_user_IP(self.client_sock.connection())
+        self.db.insert_user_IP(self.client_sock.connection()) #TODO rewrite, this is not here
         print('OK7')
         self.start_thread_send()
         print('OK8')
@@ -115,7 +114,7 @@ class Massenger(QMainWindow):
             print(data)
             message_info = data['message']
             item = QListWidgetItem()
-            icon = QIcon(self.db.get_pic_by_id(data['from']))
+            icon = QIcon(self.db.get_pic_by_id(data['from'])) #TODO rewrite (сначала написать передачу картинки через сокет)
             item.setIcon(icon)
             item.setText(message_info)
             self.message_box.setIconSize(QSize(50, 50))
@@ -125,10 +124,12 @@ class Massenger(QMainWindow):
         label = QVBoxLayout()
 
         if key_word == 'all':
-            users = self.db.select_all_data()
+            self.client_sock.send_request("LOAD_USERS", ['all'])
+            users = self.client_sock.get_reaponse()
             count_of_users = len(users)
         else:
-            users = self.db.get_users_by_key(key_word)
+            self.client_sock.send_request("LOAD_USERS", [key_word])
+            users = self.client_sock.get_reaponse()
             count_of_users = len(users)
 
         for i in range(count_of_users):
@@ -158,18 +159,18 @@ class Massenger(QMainWindow):
         self.message_box.clear()
         sndr = self.sender()
         to_id = sndr.get_id()
-        from_id = self.db.get_id(self.User.get_name())
-        print(f"./{CONST.DB_PATH}/{from_id}to{to_id}")
-        if from_id > to_id:
-            if os.path.exists(f"./{CONST.DB_PATH}/{from_id}to{to_id}"):
-                pass
-            else:
-                self.message_db = MesagesDB(from_id, to_id)
-        else:
-            if os.path.exists(f"./{CONST.DB_PATH}/{to_id}to{from_id}"):
-                pass
-            else:
-                self.message_db = MesagesDB(to_id, from_id)
+        # from_id = self.db.get_id(self.User.get_name())
+        # print(f"./{CONST.DB_PATH}/{from_id}to{to_id}")
+        # if from_id > to_id:
+        #     if os.path.exists(f"./{CONST.DB_PATH}/{from_id}to{to_id}"):
+        #         pass
+        #     else:
+        #         self.message_db = MesagesDB(from_id, to_id)
+        # else:
+        #     if os.path.exists(f"./{CONST.DB_PATH}/{to_id}to{from_id}"):
+        #         pass
+        #     else:
+        #         self.message_db = MesagesDB(to_id, from_id)
         self.User.set_send_id(to_id)
         self.render_previous_messages()
         self.message_box.scrollToBottom()

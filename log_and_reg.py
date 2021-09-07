@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap
 from style import Style
 from CustomMessageWindow import MessageWindow
 from main import Massenger
+from client import CLient_socket
 import sys
 from CONST import get_image, compare_str, get_diveded_str
 import DB
@@ -15,6 +16,7 @@ import User
 class Login_or_Register(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.Socket = CLient_socket() #TODO add connection
         self.initUI()
 
     def initUI(self):
@@ -45,16 +47,17 @@ class Login_or_Register(QMainWindow):
     def click_reg(self):
         self.reg_btn.setStyleSheet(Style.button.log_reg)
         self.close()
-        self.next = Get_data(True)
+        self.next = Get_data(True, self.Socket)
 
     def click_log(self):
         self.close()
-        self.next = Get_data(False)
+        self.next = Get_data(False, self.Socket)
 
 
 class Get_data(QMainWindow):
-    def __init__(self, isReg):
+    def __init__(self, isReg, socket):
         super().__init__()
+        self.Socket = socket
         self.isREG = isReg
         self.db = DB.UserDB()
         self.initUI()
@@ -105,20 +108,23 @@ class Get_data(QMainWindow):
             return
         name = self.login_label.text()
         if self.isREG:
-            self.db.insert_user_info(self.login_label.text(), self.password_label.text())
-            self.User = User.User(name, self.db.get_id(name), None)  # !!!!!!!!!!!!!!!!
+            self.Socket.send_request("ADD_NEW_USER", [self.login_label.text(), self.password_label.text()])
+            self.User = User.User(name, self.db.get_id(name), None) #TODO rewrite, crete user on server
             self.close()
-            self.next = Get_image(self.User)
+            self.next = Get_image(self.User, self.Socket)
         else:
-            if self.db.get_password(self.login_label.text()) == self.password_label.text():
-                self.User = User.User(name, self.db.get_id(name), None)  # !!!!!!!!!!!!!!!!
+            self.Socket.send_request("GET_USER_PASS", [self.login_label.text()])
+            user_pass = self.Socket.get_response()
+            if user_pass == self.password_label.text():
+                self.User = User.User(name, self.db.get_id(name), None) #TODO rewrite, crete user on server
                 self.close()
-                self.next = Massenger(self.User)
+                self.next = Massenger(self.User, self.Socket)
 
 
 class Get_image(QMainWindow):
-    def __init__(self, User):
+    def __init__(self, User, socket):
         super().__init__()
+        self.Socket = socket
         self.User = User
         self.db = DB.UserDB()
         self.initUI()
@@ -133,7 +139,7 @@ class Get_image(QMainWindow):
                 return 'PASS'
 
         new_image_path = get_image(self.User.get_name(), wb_patch)
-        self.db.insert_user_pic(new_image_path)
+        self.Socket.send_request("SET_IMAGE", [new_image_path])
 
         pixmap = QPixmap(new_image_path)
         self.label.setPixmap(pixmap)
@@ -170,7 +176,7 @@ class Get_image(QMainWindow):
 
     def next_window(self):
         self.close()
-        self.next = Massenger(self.User)
+        self.next = Massenger(self.User, self.Socket)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

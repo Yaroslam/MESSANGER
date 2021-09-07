@@ -4,15 +4,12 @@ import CONST
 import threading
 
 #TODO:
-#   2)get_response
-#       2.1)what_would_client_do
 #   3)cover comments
 
 
 class CLient_socket():
     def __init__(self):
         self.Client_socket = socket.socket()
-        print(1)
 
     def connection(self):
         try:
@@ -43,6 +40,15 @@ class CLient_socket():
             data = json.loads(data.decode("utf-8"))
             print('get data from server')
             return data
+
+    def get_reaponse(self):
+        response = self.Client_socket.recv(10000)
+        response = json.loads(response.decode("utf-8"))
+        if "PASSWORD" in response.keys():
+            return response["PASSWORD"]
+        elif "USERS" in response.keys():
+            return response["USERS"]
+
 
     def send_request(self, request, exstra_param):
         data = {}
